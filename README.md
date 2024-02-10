@@ -1,4 +1,4 @@
-# MATH 185 Exercises
+# MATH 175
 MATLAB codes for exercises in MATH 175: Numerical Analysis II
 
 
