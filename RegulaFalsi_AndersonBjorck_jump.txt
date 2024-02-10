@@ -1,0 +1,132 @@
+% The Modified Regula Falis Method
+% Anderson-Bjorck Algorithm
+% uses JUMP-based stopping criterion
+
+
+%% PREAMBLE
+clc
+clear
+
+% defines symbolic variable
+syms x
+
+%% Initializing global variables
+
+% defined functions
+func = exp(-x) - sin((pi*x)/2);
+
+% initializing initial endpoints [a, b]
+a = 0;
+b = 1;
+
+% for halting criterion
+max_iteration = 100;
+ErrorTol = 10^(-6);
+
+% updating table
+table = zeros(max_iteration, 5);
+
+% display table title
+fprintf('%s \t %s \t %s \t %s \t %s \n', 'n', 'a', 'b', 'c', 'rel jump')
+
+%% Regula Falsi Method with Anderson-Bjorck Algorithm
+
+% iteration counter
+iter_count = 0;
+
+while iter_count <= max_iteration
+
+    % estimate
+    if iter_count == 0  % first iteration
+
+        % function values at current endpoints
+        f_a = double(subs(func, a));
+        f_b = double(subs(func, b));
+
+        % current estimate
+        c = (a*f_b - b*f_a)/(f_b - f_a);
+
+        % function value at current estimate
+        f_c = double(subs(func, c));
+        
+        % updating new interval
+        if f_c == 0
+            break
+        elseif f_a*f_c < 0
+            root_inLeftInt = true;
+            b = c;
+        else
+            root_inLeftInt = false;
+            a = c;
+        end
+        
+    else
+
+        % constant multiplier
+        if root_inLeftInt == true
+            if (1 - (f_c/f_b)) > 0
+                const = 1 - (f_c/f_b);
+            else
+                const = 1/2;
+            end
+        else
+            if (1 - (f_c/f_a)) > 0
+                const = 1 - (f_c/f_a);
+            else
+                const = 1/2;
+            end
+        end
+
+        % function values at current endpoints
+        f_a = double(subs(func, a));
+        f_b = double(subs(func, b));
+        
+        % saving previous estimate (for rel jump)
+        prev_c = c;
+
+        % current estimate
+        if root_inLeftInt == true
+            c = (a*f_b - b*(1/2)*f_a)/(f_b - (1/2)*f_a);
+        else
+            c = (a*(1/2)*f_b - b*f_a)/((1/2)*f_b - f_a);
+        end
+
+        % function value at current estimate
+        f_c = double(subs(func, c));
+        
+        % updating new interval
+        if f_c == 0
+            break
+        elseif f_a*f_c < 0
+            root_inLeftInt = true;
+            b = c;
+        else
+            root_inLeftInt = false;
+            a = c;
+        end
+    end
+    
+    % relative jump
+    if iter_count == 0
+        rel_jump = nan;
+    else
+        rel_jump = abs(c-prev_c)/abs(c);
+    end
+
+    % stopping criterion
+    if rel_jump < ErrorTol
+        break
+    end
+
+    iter_count = iter_count + 1;
+end
+
+
+
+
+
+
+        
+
+
+        
